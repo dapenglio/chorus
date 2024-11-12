@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { MoreThanOrEqual } from 'typeorm';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { MoreThanOrEqual } from 'typeorm';
 import { ProfileEntity } from '../database/entities/profile.entity';
 
 @Controller('profiles')

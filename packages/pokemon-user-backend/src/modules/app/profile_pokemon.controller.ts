@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Query, Body } from '@nestjs/common';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { ProfilePokemon} from '../database/entities/profile_pokemon';
 import { ProfileEntity } from '../database/entities/profile.entity';
 import { PokemonEntity } from '../database/entities/pokemon.entity';

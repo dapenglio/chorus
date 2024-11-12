@@ -1,6 +1,6 @@
+/*
 import { PostgreSqlContainer } from '@testcontainers/postgresql';
 
-/*
 export const postgresContainer = new PostgreSqlContainer()
   .withDatabase('pokemon')
   .withUsername('admin')
