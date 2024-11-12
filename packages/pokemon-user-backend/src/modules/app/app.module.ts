@@ -9,6 +9,16 @@ import { ProfilePokemonController } from './profile_pokemon.controller';
 
 @Module({
   imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'admin',
+      password: 'admin',
+      database: 'pokemon',
+      entities: [PokemonEntity, ProfileEntity, ProfilePokemon],
+      synchronize: true,
+    }),
     TypeOrmModule.forFeature([ProfileEntity, PokemonEntity, ProfilePokemon])
   ],
   controllers: [ProfileController, PokemonController, ProfilePokemonController],
