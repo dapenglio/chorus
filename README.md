@@ -57,7 +57,8 @@ npm i -g pnpm@8.15.8
 Clone this repository, and run the commands below to get started.
 
 1. Run `pnpm install`
-2. Run `pm2 start`
+2. `npm install pm2 -g`
+3. Run `pm2 start`
 
 > Note: The API and React server will automatically watch for changes.
 
