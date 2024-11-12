@@ -1,0 +1,2 @@
+insert into profile_entity(name, iconurl) values ('Dapeng Chorus', 'https://assets.dryicons.com/uploads/icon/svg/5606/a4f6387b-0403-4bb4-8766-53289166f6bb.svg' );
+insert into profile_entity(name, iconurl) values ('Innovations LA', 'https://assets.dryicons.com/uploads/icon/svg/6647/1ad7cf69-0500-44c7-b3eb-0742c376a62b.svg' );

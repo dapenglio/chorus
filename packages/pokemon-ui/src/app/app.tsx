@@ -11,7 +11,7 @@ interface Pokemon {
 interface Profile {
   id: number;
   name: string;
-  iconUrl?: string;
+  iconurl?: string;
 }
 
 // Styled components for Profile and Pokemon sections
@@ -48,7 +48,7 @@ class ProfilePokemonApp extends Component {
     pokemons: [] as Pokemon[],
     profiles: [] as Profile[],
     selectedProfile: null as Profile | null,
-    selectedPokemons: [] as string[],
+    selectedPokemons: [] as number[],
   };
 
   componentDidMount() {
@@ -88,7 +88,7 @@ class ProfilePokemonApp extends Component {
     try {
       const response = await fetch(`http://localhost:3000/api/profilePokemon?profileId=${profileId}`);
       const selectedPokemonIds = await response.json();
-      this.setState({ selectedPokemons: selectedPokemonIds.map((p: any) => p.pokemonId.toString()) });
+      this.setState({ selectedPokemons: selectedPokemonIds.map((p: any) => p.pokemon.id) });
     } catch (error) {
       console.error('Error fetching profile pokemons:', error);
     }
@@ -149,7 +149,7 @@ class ProfilePokemonApp extends Component {
               selected={selectedProfile?.id === profile.id}
               onClick={() => this.handleProfileClick(profile)}
             >
-              <Image src={profile.iconUrl || 'https://via.placeholder.com/100'} alt={profile.name} />
+              <Image src={profile.iconurl || 'https://via.placeholder.com/100'} alt={profile.name} />
               <h3>{profile.name}</h3>
             </Card>
           ))}
