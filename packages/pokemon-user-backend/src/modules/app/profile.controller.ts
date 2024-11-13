@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, Post, Body } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MoreThanOrEqual } from 'typeorm';
@@ -25,6 +25,13 @@ export class ProfileController {
   @Get(':id')
   async getProfileById(@Param('id') id: number) {
     return await this.profileRepository.findOne({ where: { id } });
+  }
+
+  // (3) Create a new profile
+  @Post()
+  async createProfile(@Body() profileData: { name: string; iconurl?: string }) {
+    const newProfile = this.profileRepository.create(profileData);
+    return await this.profileRepository.save(newProfile);
   }
 }
 

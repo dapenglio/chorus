@@ -1,2 +1,5 @@
 insert into profile_entity(name, iconurl) values ('Dapeng Chorus', 'https://assets.dryicons.com/uploads/icon/svg/5606/a4f6387b-0403-4bb4-8766-53289166f6bb.svg' );
 insert into profile_entity(name, iconurl) values ('Innovations LA', 'https://assets.dryicons.com/uploads/icon/svg/6647/1ad7cf69-0500-44c7-b3eb-0742c376a62b.svg' );
+insert into profile_entity(name, iconurl) values ('New Comer', 'https://www.shutterstock.com/shutterstock/photos/1051689107/display_1500/stock-vector-management-icon-teamwork-management-icon-business-team-company-leader-supervisor-partnership-1051689107.jpg' );
+insert into profile_entity(name, iconurl) values ('Another Pro', 'https://as1.ftcdn.net/v2/jpg/02/15/28/80/1000_F_215288010_wOT3UFb94pMWS0sOafZ6hVzyHt3gxpJj.jpg' );
+

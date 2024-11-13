@@ -43,12 +43,83 @@ const Image = styled.img`
   object-fit: cover;
 `;
 
+const AddProfileButton = styled.button`
+  padding: 10px;
+  width: 150px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  &:hover {
+    background-color: #218838;
+  }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+`;
+
+const InputField = styled.input`
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+`;
+
+const ModalButton = styled.button`
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+const OkButton = styled(ModalButton)`
+  background-color: #007bff;
+  color: white;
+`;
+
+const CancelButton = styled(ModalButton)`
+  background-color: #6c757d;
+  color: white;
+`;
+
 class ProfilePokemonApp extends Component {
   state = {
     pokemons: [] as Pokemon[],
     profiles: [] as Profile[],
     selectedProfile: null as Profile | null,
     selectedPokemons: [] as number[],
+    displayedPokemons: [] as Pokemon[],
+    showAddProfileModal: false,
+    newProfileName: '',
+    newProfileIconUrl: '',
   };
 
   componentDidMount() {
@@ -62,9 +133,9 @@ class ProfilePokemonApp extends Component {
       const response = await fetch('http://localhost:3000/api/profiles');
       const profiles = await response.json();
       if (profiles.length > 0) {
-        // Set the first profile as selected by default
-        this.setState({ profiles, selectedProfile: profiles[0] }, () => {
-          this.loadProfilePokemons(profiles[0].id);
+        // Set the first profile as selected by default and load related Pokémon
+        this.setState({ profiles }, () => {
+          this.handleProfileClick(profiles[0]);
         });
       } else {
         this.setState({ profiles });
@@ -78,9 +149,26 @@ class ProfilePokemonApp extends Component {
     try {
       const response = await fetch('http://localhost:3000/api/pokemon');
       const pokemons = await response.json();
-      this.setState({ pokemons });
+      this.setState({ pokemons }, () => {
+        this.loadPokemonImagesInBatches();
+      });
     } catch (error) {
       console.error('Error fetching pokemons:', error);
+    }
+  };
+
+  loadPokemonImagesInBatches = () => {
+    const { pokemons, displayedPokemons } = this.state;
+    const batchSize = 10;
+    const currentLength = displayedPokemons.length;
+    const nextBatch = pokemons.slice(currentLength, currentLength + batchSize);
+    if (nextBatch.length > 0) {
+      this.setState({
+        displayedPokemons: [...displayedPokemons, ...nextBatch],
+      }, () => {
+        // Load the next batch after a short delay to avoid overwhelming the server
+        setTimeout(this.loadPokemonImagesInBatches, 500);
+      });
     }
   };
 
@@ -99,6 +187,42 @@ class ProfilePokemonApp extends Component {
     this.setState({ selectedProfile: profile, selectedPokemons: [] }, () => {
       this.loadProfilePokemons(profile.id);
     });
+  };
+
+  handleAddProfile = () => {
+    this.setState({ showAddProfileModal: true });
+  };
+
+  handleCloseModal = () => {
+    this.setState({ showAddProfileModal: false, newProfileName: '', newProfileIconUrl: '' });
+  };
+
+  handleCreateProfile = async () => {
+    const { newProfileName, newProfileIconUrl } = this.state;
+    if (newProfileName) {
+      await this.createProfile({ name: newProfileName, iconurl: newProfileIconUrl });
+      this.handleCloseModal();
+    }
+  };
+
+  createProfile = async (profileData: { name: string; iconurl?: string }) => {
+    try {
+      const response = await fetch('http://localhost:3000/api/profiles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData),
+      });
+      if (response.ok) {
+        const newProfile = await response.json();
+        this.setState(prevState => ({
+          profiles: [...prevState.profiles, newProfile],
+        }));
+      }
+    } catch (error) {
+      console.error('Error creating profile:', error);
+    }
   };
 
   handlePokemonClick = async (pokemon: Pokemon) => {
@@ -137,12 +261,13 @@ class ProfilePokemonApp extends Component {
   };
 
   render() {
-    const { profiles, pokemons, selectedProfile, selectedPokemons } = this.state;
+    const { profiles, displayedPokemons, selectedProfile, selectedPokemons, showAddProfileModal, newProfileName, newProfileIconUrl } = this.state;
 
     return (
       <div>
         <h2>Profiles</h2>
         <SectionContainer>
+          <AddProfileButton onClick={this.handleAddProfile}>+ <br/> Add Profile</AddProfileButton>
           {profiles.map(profile => (
             <Card
               key={profile.id}
@@ -157,21 +282,45 @@ class ProfilePokemonApp extends Component {
 
         <h2>Pokémon</h2>
         <SectionContainer>
-          {pokemons.map(pokemon => (
+          {displayedPokemons.map(pokemon => (
             <Card
               key={pokemon.id}
               selected={selectedPokemons.includes(pokemon.id)}
               onClick={() => this.handlePokemonClick(pokemon)}
             >
-              <Image src={pokemon.url} alt={pokemon.name} />
+              <Image src={`${pokemon.url}?cache=true`} alt={pokemon.name} loading="lazy" />
               <h3>{pokemon.name}</h3>
             </Card>
           ))}
         </SectionContainer>
+
+        {showAddProfileModal && (
+          <ModalOverlay>
+            <ModalContent>
+              <h3>Add New Profile</h3>
+              <InputField
+                type="text"
+                placeholder="Profile Name"
+                value={newProfileName}
+                onChange={(e) => this.setState({ newProfileName: e.target.value })}
+              />
+              <InputField
+                type="text"
+                placeholder="Icon URL (optional)"
+                value={newProfileIconUrl}
+                onChange={(e) => this.setState({ newProfileIconUrl: e.target.value })}
+              />
+              <ButtonContainer>
+                <CancelButton onClick={this.handleCloseModal}>Cancel</CancelButton>
+                <OkButton onClick={this.handleCreateProfile}>OK</OkButton>
+              </ButtonContainer>
+            </ModalContent>
+          </ModalOverlay>
+        )}
+
       </div>
     );
   }
 }
 
 export default ProfilePokemonApp;
-
