@@ -25,3 +25,5 @@ import { ProfilePokemonController } from './profile_pokemon.controller';
 })
 export class AppModule {}
 
+export const TO_FILL_DB = true
+

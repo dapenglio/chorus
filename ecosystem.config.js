@@ -8,6 +8,7 @@ module.exports = {
     {
       name: 'server',
       script: 'pnpm pokemon-user-backend:serve',
+      // watch: ['packages/pokemon-user-backend/src'],
       instance: 1,
     },
   ],

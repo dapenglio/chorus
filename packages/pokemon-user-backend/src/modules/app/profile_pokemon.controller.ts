@@ -1,31 +1,30 @@
-import { Controller, Get, Post, Query, Body } from '@nestjs/common';
+import { Controller, Get, Post, Query, Body, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProfilePokemon} from '../database/entities/profile_pokemon';
 import { ProfileEntity } from '../database/entities/profile.entity';
 import { PokemonEntity } from '../database/entities/pokemon.entity';
+import { TO_FILL_DB } from './app.module';
 
 @Controller('profilePokemon')
-export class ProfilePokemonController {
+export class ProfilePokemonController implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(ProfilePokemon)
-    private readonly profileToPokemonRepository: Repository<ProfilePokemon>,
+    private readonly profilePokemonRepository: Repository<ProfilePokemon>,
     @InjectRepository(ProfileEntity)
     private readonly profileRepository: Repository<ProfileEntity>,
     @InjectRepository(PokemonEntity)
     private readonly pokemonRepository: Repository<PokemonEntity>,
   ) {}
 
-  // Get all Pokémon associated with a given profile
   @Get()
   async getProfilePokemons(@Query('profileId') profileId: number) {
-    return await this.profileToPokemonRepository.find({
+    return await this.profilePokemonRepository.find({
       where: { profile: { id: profileId } },
       relations: ['pokemon'],
     });
   }
 
-  // Add or remove Pokémon from a profile
   @Post()
   async updateProfilePokemon(@Body() body: { profileId: number; pokemonId: number; action: 'add' | 'remove' }) {
     const { profileId, pokemonId, action } = body;
@@ -39,15 +38,26 @@ export class ProfilePokemonController {
 
     if (action === 'add') {
       // Check if already exists
-      const existingEntry = await this.profileToPokemonRepository.findOne({
+      const existingEntry = await this.profilePokemonRepository.findOne({
         where: { profile: { id: profileId }, pokemon: { id: pokemonId } },
       });
       if (!existingEntry) {
-        const profileToPokemon = this.profileToPokemonRepository.create({ profile, pokemon });
-        await this.profileToPokemonRepository.save(profileToPokemon);
+        const profileToPokemon = this.profilePokemonRepository.create({ profile, pokemon });
+        await this.profilePokemonRepository.save(profileToPokemon);
       }
     } else if (action === 'remove') {
-      await this.profileToPokemonRepository.delete({ profile: { id: profileId }, pokemon: { id: pokemonId } });
+      await this.profilePokemonRepository.delete({ profile: { id: profileId }, pokemon: { id: pokemonId } });
+    }
+  }
+
+  @Post('clearProfilePokemon')
+  async clearProfilePokemon(): Promise<void> {
+    await this.profilePokemonRepository.clear();
+  }
+
+  async onApplicationBootstrap() {
+    if (TO_FILL_DB) {
+      await this.clearProfilePokemon();
     }
   }
 }

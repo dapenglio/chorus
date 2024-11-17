@@ -1,11 +1,14 @@
-import { Controller, Get, Param, Query, Post, Body } from '@nestjs/common';
+import { Controller, Get, Param, Query, Post, Body, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MoreThanOrEqual } from 'typeorm';
 import { ProfileEntity } from '../database/entities/profile.entity';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { TO_FILL_DB } from './app.module';
 
 @Controller('profiles')
-export class ProfileController {
+export class ProfileController implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(ProfileEntity)
     private readonly profileRepository: Repository<ProfileEntity>,
@@ -32,6 +35,19 @@ export class ProfileController {
   async createProfile(@Body() profileData: { name: string; iconurl?: string }) {
     const newProfile = this.profileRepository.create(profileData);
     return await this.profileRepository.save(newProfile);
+  }
+
+  @Post('initProfiles')
+  async initProfiles(): Promise<void> {
+    const sqlPath = join(__dirname, '..', '..', '..', 'sql_insert_profile');
+    const sql = readFileSync(sqlPath, 'utf8');
+    await this.profileRepository.query(sql);
+  }
+
+  async onApplicationBootstrap() {
+    if (TO_FILL_DB) {
+      await this.initProfiles();
+    }
   }
 }
 
