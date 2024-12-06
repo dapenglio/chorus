@@ -1,5 +1,18 @@
 # Project Summary
 
+## New changes
+
+Thank you, Reyes and Chrissy, for being so patient! This is a new commit for what we talked about in the meeting.  I guess that I should not submit a new answer sheet after the quiz, so, this commit contains minimal changes.
+- First of all, why the modified code didn't work?
+  -- browser | Inspect | Console, we can see why the page didn't render: onClick should be a function, it should be `{() => this.handleStart()}` but not `{this.handleStart()}`.
+  -- To Chrissy, we don't have to refactor the code a lot. What the UI does is, in abstract words, to render _these_ pokemons in a specific way. We added `start` and changed `limit` to update how to return _these_ pokemons, the general logic of the code does not change. Let me know if I misunderstood the question.
+- renamed sql1 to sql_insert_pokemon and renamed sql2 to sql_insert_profile
+  -- sql_insert_pokemon inserted pokemon #101 to #250 twice; now it inserts #101 to #999.
+  -- we may use the official Pokemon id as the primary key
+- https://pokeapi.co/ contains all details of Pokemons, (thanks for recommendation!). 
+  -- its images are raster but not vector, and small; so I didn't use them in sql_insert_pokemon
+- In the code console.log() starts at the beginning of a line, it is easy to notice these temporary lines later and delete them; however IDEs often auto format them.
+
 ## Repository Location
 You are already here, https://github.com/dapenglio/chorus .
 

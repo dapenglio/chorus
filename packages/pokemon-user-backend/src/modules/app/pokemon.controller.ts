@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, OnApplicationBootstrap } from '@nestjs/common';
+import { Controller, Get, Post, Param, Query, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PokemonEntity } from '../database/entities/pokemon.entity';
@@ -14,9 +14,11 @@ export class PokemonController implements OnApplicationBootstrap {
   ) {}
 
   @Get()
-  async getPokemons() {
+  async getPokemons(@Query('start') start: number) {
+console.log('getPokemons', start );
     return await this.pokemonRepository.find({
-      take: 150,
+      skip: start ? start : 0,
+      take: 50,
       order: { id: 'ASC' },
     });
   }

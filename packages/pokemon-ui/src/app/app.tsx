@@ -43,6 +43,19 @@ const Image = styled.img`
   object-fit: cover;
 `;
 
+const PaginationButton = styled.button`
+  padding: 10px;
+  width: 130px;
+  color: white;
+  background-color: #99bbff;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: ${props => (props.selected ? '#77bbff' : '#99bbff')};
+`;
+
 const AddProfileButton = styled.button`
   padding: 10px;
   width: 150px;
@@ -120,6 +133,7 @@ class ProfilePokemonApp extends Component {
     showAddProfileModal: false,
     newProfileName: '',
     newProfileIconUrl: '',
+    start: 0 as number,
   };
 
   componentDidMount() {
@@ -147,9 +161,11 @@ class ProfilePokemonApp extends Component {
 
   fetchPokemons = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/pokemon');
+      const { start } = this.state
+      const response = await fetch('http://localhost:3000/api/pokemon?start=' + start);
       const pokemons = await response.json();
-      this.setState({ pokemons }, () => {
+console.log(`fetchPokemons ${start} ->  ${pokemons[0]}` );
+      this.setState({ pokemons, displayedPokemons: [] }, () => {
         this.loadPokemonImagesInBatches();
       });
     } catch (error) {
@@ -188,6 +204,11 @@ class ProfilePokemonApp extends Component {
       this.loadProfilePokemons(profile.id);
     });
   };
+
+  handleStart = async (start: number) => {
+console.log(`handle start, $start` );
+    this.setState( { start }, () => { this.fetchPokemons(); } );
+  }
 
   handleAddProfile = () => {
     this.setState({ showAddProfileModal: true });
@@ -261,7 +282,7 @@ class ProfilePokemonApp extends Component {
   };
 
   render() {
-    const { profiles, displayedPokemons, selectedProfile, selectedPokemons, showAddProfileModal, newProfileName, newProfileIconUrl } = this.state;
+    const { profiles, displayedPokemons, selectedProfile, selectedPokemons, showAddProfileModal, newProfileName, newProfileIconUrl, start } = this.state;
 
     return (
       <div>
@@ -281,6 +302,15 @@ class ProfilePokemonApp extends Component {
         </SectionContainer>
 
         <h2>Pokémon</h2>
+        <SectionContainer>
+	  {Array(10).fill().map( (_, i) => (
+            <PaginationButton
+              selected={start / 50  === i}
+	      onClick={() => this.handleStart( i * 50 )}>
+	      Group {i + 1}
+	    </PaginationButton>
+	  ) )}
+        </SectionContainer>
         <SectionContainer>
           {displayedPokemons.map(pokemon => (
             <Card
